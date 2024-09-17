@@ -3,7 +3,7 @@ import time
 import psycopg2
 from psycopg2 import sql
 
-# Fetch environment variables for PostgreSQL connection details
+
 POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")
 POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
 POSTGRES_DB = os.getenv("POSTGRES_DB", "your_db")
@@ -11,12 +11,11 @@ POSTGRES_USER = os.getenv("POSTGRES_USER", "your_user")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "your_password")
 INTERVAL_MINUTES = int(os.getenv("INTERVAL_MINUTES", "10"))
 
-# Set the idle connection threshold from an environment variable (default is 1 hour)
+
 IDLE_THRESHOLD = os.getenv("IDLE_THRESHOLD", "1 hour")
 
 def terminate_idle_connections():
     try:
-        # Establish connection to the database
         conn = psycopg2.connect(
             dbname=POSTGRES_DB,
             user=POSTGRES_USER,
@@ -27,7 +26,7 @@ def terminate_idle_connections():
         conn.autocommit = True
         cur = conn.cursor()
 
-        # Query for idle connections that have been idle for more than the threshold
+
         query = f"""
             SELECT pid, state, now() - query_start AS duration
             FROM pg_stat_activity
