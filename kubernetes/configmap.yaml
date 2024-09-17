@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-idle-monitor-config
+data:
+  POSTGRES_HOST: "your_postgres_host"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "your_db"
+  INTERVAL_MINUTES: "10"
+  IDLE_THRESHOLD: "1 hour"

@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-idle-monitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-idle-monitor
+  template:
+    metadata:
+      labels:
+        app: postgres-idle-monitor
+    spec:
+      containers:
+      - name: postgres-idle-monitor
+        image: your_docker_image:latest
+        env:
+        - name: POSTGRES_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-idle-monitor-config
+              key: POSTGRES_HOST
+        - name: POSTGRES_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-idle-monitor-config
+              key: POSTGRES_PORT
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-idle-monitor-config
+              key: POSTGRES_DB
+        - name: INTERVAL_MINUTES
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-idle-monitor-config
+              key: INTERVAL_MINUTES
+        - name: IDLE_THRESHOLD
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-idle-monitor-config
+              key: IDLE_THRESHOLD
+
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-idle-monitor-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-idle-monitor-secret
+              key: POSTGRES_PASSWORD
