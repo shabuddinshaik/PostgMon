@@ -23,4 +23,10 @@ docker push your-docker-repo/postgres-idle-monitor:latest
 
 
 
+postgresql://<username>:<password>@<host>:<port>/<database>
+POSTGRES_URL="postgresql://myuser:mypassword@postgres-container:5432/mydatabase"
+
+
+
+
 

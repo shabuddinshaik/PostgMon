@@ -15,6 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 RUN mkdir -p /app/logs
 
+ENV POSTGRES_URL=""
 ENV POSTGRES_HOST=localhost
 ENV POSTGRES_PORT=5432
 ENV POSTGRES_DB=mydatabase
@@ -22,10 +23,6 @@ ENV POSTGRES_USER=myuser
 ENV POSTGRES_PASSWORD=mypassword
 ENV INTERVAL_MINUTES=10
 ENV IDLE_THRESHOLD="1 hour"
-ENV EMAIL_HOST=smtp.gmail.com
-ENV EMAIL_PORT=587
-ENV EMAIL_USER=your_email@gmail.com
-ENV EMAIL_PASSWORD=your_email_password
-ENV EMAIL_RECIPIENT=recipient_email@gmail.com
+ENV LOG_LEVEL=DEBUG
 
 CMD ["python", "monitor.py"]

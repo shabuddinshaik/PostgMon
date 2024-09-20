@@ -2,9 +2,8 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-idle-monitor-config
+  namespace: your-namespace
 data:
-  POSTGRES_HOST: "your_postgres_host"
-  POSTGRES_PORT: "5432"
-  POSTGRES_DB: "your_db"
+  POSTGRES_URL: "jdbc:postgresql://your_postgres_host:5432/mydatabase?sslmode=require"
   INTERVAL_MINUTES: "10"
   IDLE_THRESHOLD: "1 hour"
