@@ -1,0 +1,2 @@
+# Run the monitor.py every 10 minutes
+*/10 * * * * python /app/monitor.py >> /app/logs/cron.log 2>&1
