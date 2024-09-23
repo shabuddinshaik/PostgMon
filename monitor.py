@@ -9,11 +9,6 @@ logging.basicConfig(level=LOG_LEVEL, format='%(asctime)s - %(levelname)s - %(mes
     logging.StreamHandler()
 ])
 
-
-logging.info("Environment Variables:")
-for key, value in os.environ.items():
-    logging.info(f"{key}: {value}")
-
 POSTGRES_URL = os.getenv("POSTGRES_URL")
 POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")
 POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
@@ -24,8 +19,6 @@ IDLE_THRESHOLD = os.getenv("IDLE_THRESHOLD", "1 hour")
 
 def terminate_idle_connections():
     try:
-        logging.info(f"POSTGRES_URL: {POSTGRES_URL}")
-
         if POSTGRES_URL:
             logging.info("Using POSTGRES_URL for connection")
             conn = psycopg2.connect(POSTGRES_URL)

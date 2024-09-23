@@ -1,4 +1,4 @@
-FROM python:3.9-alpine
+FROM python:3.9-slim
 
 RUN apk update && apk add --no-cache \
     python3-dev \
@@ -29,6 +29,8 @@ RUN chmod 0644 /etc/cron.d/monitor-cron && \
     crontab /etc/cron.d/monitor-cron
 
 RUN touch /var/log/cron.log
+
+RUN ln -sf /dev/stdout /app/logs/monitor.log
 
 ENV POSTGRES_URL=""
 ENV POSTGRES_HOST="localhost"
