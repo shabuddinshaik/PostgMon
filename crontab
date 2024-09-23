@@ -1,1 +1,1 @@
-*/10 * * * * root /usr/bin/python3 /app/monitor.py >> /var/log/cron.log 2>&1
+*/10 * * * * /app/venv/bin/python /app/monitor.py >> /var/log/cron.log 2>&1
