@@ -39,4 +39,4 @@ ENV POSTGRES_USER=""
 ENV POSTGRES_PASSWORD=""
 ENV LOG_LEVEL="DEBUG"
 
-CMD ["crond", "-f"]
+CMD ["cron", "-f"]
