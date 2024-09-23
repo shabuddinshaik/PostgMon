@@ -30,11 +30,11 @@ RUN chmod 0644 /etc/cron.d/monitor-cron && \
 RUN touch /var/log/cron.log
 
 ENV POSTGRES_URL=""
-ENV POSTGRES_HOST="localhost"
-ENV POSTGRES_PORT="5432"
-ENV POSTGRES_DB="mydatabase"
-ENV POSTGRES_USER="myuser"
-ENV POSTGRES_PASSWORD="mypassword"
+ENV POSTGRES_HOST=""
+ENV POSTGRES_PORT=""
+ENV POSTGRES_DB=""
+ENV POSTGRES_USER=""
+ENV POSTGRES_PASSWORD=""
 ENV LOG_LEVEL="DEBUG"
 
 CMD ["cron", "-f"]
