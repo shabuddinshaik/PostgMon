@@ -1,4 +1,2 @@
-#*/10 * * * * /app/venv/bin/python /app/monitor.py >> /var/log/cron.log 2>&1
-
 */10 * * * * /bin/sh -c '/app/venv/bin/python /app/monitor.py >> /app/logs/cron.log 2>&1'
 

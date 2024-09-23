@@ -1,15 +1,16 @@
-FROM python:3.9-slim
+FROM python:3.9-alpine
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apk update && apk add --no-cache \
     python3-dev \
-    build-essential \
-    libpq-dev \
+    build-base \
+    libpq \
+    postgresql-dev \
     gcc \
-    cron \
+    musl-dev \
+    linux-headers \
     libffi-dev \
-    openssl \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    openssl-dev \
+    && rm -rf /var/cache/apk/*
 
 RUN python3 -m venv /app/venv
 
@@ -39,4 +40,4 @@ ENV POSTGRES_USER=""
 ENV POSTGRES_PASSWORD=""
 ENV LOG_LEVEL="DEBUG"
 
-CMD ["cron", "-f"]
+CMD ["crond", "-f"]

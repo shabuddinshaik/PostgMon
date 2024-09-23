@@ -4,10 +4,15 @@ from psycopg2 import sql
 import logging
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG").upper()
-logging.basicConfig(level=LOG_LEVEL, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
-    logging.FileHandler("/app/logs/monitor.log"),
-    logging.StreamHandler()
-])
+log_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+
+file_handler = logging.FileHandler("/app/logs/monitor.log")
+file_handler.setFormatter(log_formatter)
+
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(log_formatter)
+
+logging.basicConfig(level=LOG_LEVEL, handlers=[file_handler, stream_handler])
 
 POSTGRES_URL = os.getenv("POSTGRES_URL")
 POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")
