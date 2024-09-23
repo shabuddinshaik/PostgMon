@@ -27,11 +27,11 @@ postgresql://<username>:<password>@<host>:<port>/<database>
 POSTGRES_URL="postgresql://myuser:mypassword@postgres-container:5432/mydatabase"
 
 
-**Base Image: **
+Base Image:
 
 python:3.9-alpine
 
-**Choice of Base Image: **
+Choice of Base Image:
 
 >The base image python:3.9-alpine is a lightweight version of Python built on Alpine Linux. This choice is intentional for the following reasons:
 
