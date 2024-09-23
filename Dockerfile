@@ -1,23 +1,27 @@
-FROM ubuntu:latest
-
-WORKDIR /app
+FROM ubuntu:20.04
 
 
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
+    python3-venv \
     build-essential \
     libpq-dev \
     gcc \
-    cron \
-    && rm -rf /var/lib/apt/lists/*
+    cron
+
+
+RUN python3 -m venv /app/venv
+
+
+ENV PATH="/app/venv/bin:$PATH"
 
 
 COPY monitor.py /app/monitor.py
 COPY requirements.txt /app/requirements.txt
 
 
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
 
 RUN mkdir -p /app/logs
@@ -38,5 +42,6 @@ ENV POSTGRES_DB=mydatabase
 ENV POSTGRES_USER=myuser
 ENV POSTGRES_PASSWORD=mypassword
 ENV LOG_LEVEL=DEBUG
+
 
 CMD ["cron", "-f"]
