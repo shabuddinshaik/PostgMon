@@ -1,16 +1,15 @@
 FROM python:3.9-slim
 
-RUN apk update && apk add --no-cache \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-dev \
-    build-base \
-    libpq \
-    postgresql-dev \
+    build-essential \
+    libpq-dev \
     gcc \
-    musl-dev \
-    linux-headers \
+    cron \
     libffi-dev \
-    openssl-dev \
-    && rm -rf /var/cache/apk/*
+    openssl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m venv /app/venv
 
