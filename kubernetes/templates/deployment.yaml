@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgmon
+  labels:
+    app: postgmon
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgmon
+  template:
+    metadata:
+      labels:
+        app: postgmon
+    spec:
+      containers:
+      - name: idle-monitor
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: POSTGRES_URL
+          value: {{ .Values.postgres.url | quote }}
+        - name: POSTGRES_HOST
+          value: {{ .Values.postgres.host | quote }}
+        - name: POSTGRES_PORT
+          value: {{ .Values.postgres.port | quote }}
+        - name: POSTGRES_DB
+          value: {{ .Values.postgres.db | quote }}
+        - name: POSTGRES_USER
+          value: {{ .Values.postgres.user | quote }}
+        - name: POSTGRES_PASSWORD
+          value: {{ .Values.postgres.password | quote }}
+        - name: LOG_LEVEL
+          value: {{ .Values.logLevel | quote }}
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+        resources:
+          limits:
+            cpu: {{ .Values.resources.limits.cpu }}
+            memory: {{ .Values.resources.limits.memory }}
+          requests:
+            cpu: {{ .Values.resources.requests.cpu }}
+            memory: {{ .Values.resources.requests.memory }}
+      volumes:
+      - name: logs
+        emptyDir: {}
+      restartPolicy: Always

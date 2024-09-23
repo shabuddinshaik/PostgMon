@@ -1,0 +1,22 @@
+image:
+  repository: shabuddinshaik/postgmon
+  tag: "3.00"
+  pullPolicy: IfNotPresent
+
+postgres:
+  url: ""
+  host: "localhost"
+  port: "5432"
+  db: "your_db"
+  user: "your_user"
+  password: "your_password"
+
+logLevel: "DEBUG"
+
+resources: 
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
