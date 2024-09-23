@@ -20,20 +20,18 @@ POSTGRES_USER = os.getenv("POSTGRES_USER", "your_user")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "your_password")
 INTERVAL_MINUTES = int(os.getenv("INTERVAL_MINUTES", "10"))
 IDLE_THRESHOLD = os.getenv("IDLE_THRESHOLD", "1 hour")
+IDLE_CONNECTION_LIMIT = int(os.getenv("IDLE_CONNECTION_LIMIT", "50"))
 
 def terminate_idle_connections():
     try:
         logging.info("Connecting to PostgreSQL database...")
-        if POSTGRES_URL:
-            conn = psycopg2.connect(POSTGRES_URL)
-        else:
-            conn = psycopg2.connect(
-                dbname=POSTGRES_DB,
-                user=POSTGRES_USER,
-                password=POSTGRES_PASSWORD,
-                host=POSTGRES_HOST,
-                port=POSTGRES_PORT
-            )
+        conn = psycopg2.connect(POSTGRES_URL) if POSTGRES_URL else psycopg2.connect(
+            dbname=POSTGRES_DB,
+            user=POSTGRES_USER,
+            password=POSTGRES_PASSWORD,
+            host=POSTGRES_HOST,
+            port=POSTGRES_PORT
+        )
         conn.autocommit = True
         cur = conn.cursor()
 
@@ -46,19 +44,24 @@ def terminate_idle_connections():
         cur.execute(query)
 
         idle_connections = cur.fetchall()
+        num_idle_connections = len(idle_connections)
 
-        if idle_connections:
-            logging.info(f"Found {len(idle_connections)} idle connection(s).")
+        logging.info(f"Checked for idle connections: {num_idle_connections} found.")
+
+        if num_idle_connections >= IDLE_CONNECTION_LIMIT:
+            logging.info(f"Idle connection limit reached ({IDLE_CONNECTION_LIMIT}). Terminating connections...")
             for pid, state, duration in idle_connections:
                 logging.info(f"Terminating idle connection with PID: {pid}, Duration: {duration}")
                 cur.execute(sql.SQL("SELECT pg_terminate_backend(%s);"), [pid])
-            logging.info(f"Terminated {len(idle_connections)} idle connection(s).")
+            logging.info(f"Terminated {num_idle_connections} idle connection(s).")
         else:
-            logging.info("No idle connections found.")
+            logging.info("Idle connections are below the threshold. No connections terminated.")
 
         cur.close()
         conn.close()
         logging.info("Database connection closed.")
+    except psycopg2.OperationalError as oe:
+        logging.error(f"Operational error: {oe}")
     except Exception as e:
         logging.error(f"Error: {e}")
 
