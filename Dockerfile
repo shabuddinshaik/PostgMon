@@ -1,5 +1,7 @@
 FROM python:3.9-alpine
 
+WORKDIR /app
+
 RUN apk update && apk add --no-cache \
     python3-dev \
     build-base \
@@ -31,6 +33,7 @@ RUN chmod 0644 /etc/cron.d/monitor-cron && \
 RUN touch /var/log/cron.log
 
 RUN ln -sf /dev/stdout /app/logs/monitor.log
+RUN ln -sf /dev/stdout /app/logs/cron.log
 
 ENV POSTGRES_URL=""
 ENV POSTGRES_HOST="localhost"
