@@ -1,18 +1,24 @@
-FROM python:3.9-slim
+FROM ubuntu:latest
 
 WORKDIR /app
 
+
 RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
     build-essential \
     libpq-dev \
     gcc \
-    python3-dev \
-    cron
+    cron \
+    && rm -rf /var/lib/apt/lists/*
+
 
 COPY monitor.py /app/monitor.py
 COPY requirements.txt /app/requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
+
+RUN pip3 install --no-cache-dir -r requirements.txt
+
 
 RUN mkdir -p /app/logs
 
@@ -23,6 +29,7 @@ RUN chmod 0644 /etc/cron.d/monitor-cron && \
 
 
 RUN touch /var/log/cron.log
+
 
 ENV POSTGRES_URL=""
 ENV POSTGRES_HOST=localhost
