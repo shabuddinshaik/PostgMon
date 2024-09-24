@@ -21,7 +21,8 @@ ENV PATH="/app/venv/bin:$PATH"
 COPY monitor.py /app/monitor.py
 COPY requirements.txt /app/requirements.txt
 
-RUN pip install --no-cache-dir wheel
+RUN pip install --no-cache-dir --upgrade pip setuptools
+
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 RUN mkdir -p /app/logs
@@ -30,10 +31,9 @@ COPY crontab /etc/cron.d/monitor-cron
 RUN chmod 0644 /etc/cron.d/monitor-cron && \
     crontab /etc/cron.d/monitor-cron
 
-RUN touch /var/log/cron.log
-
-RUN ln -sf /dev/stdout /app/logs/monitor.log
-RUN ln -sf /dev/stdout /app/logs/cron.log
+RUN touch /var/log/cron.log && \
+    ln -sf /dev/stdout /app/logs/monitor.log && \
+    ln -sf /dev/stdout /app/logs/cron.log
 
 ENV POSTGRES_URL=""
 ENV POSTGRES_HOST="localhost"
