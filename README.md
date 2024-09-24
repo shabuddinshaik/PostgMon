@@ -1,4 +1,4 @@
-# PostgreSQL Idle Connection Monitor
+# PostgMon
 
 This project is designed to monitor idle PostgreSQL connections and terminate those that have been idle for a specified amount of time (default: 1 hour). The configuration can be adjusted using environment variables.
 
