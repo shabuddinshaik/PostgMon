@@ -20,19 +20,40 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
         - name: POSTGRES_URL
-          value: {{ .Values.postgres.url | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: POSTGRES_URL
         - name: POSTGRES_HOST
-          value: {{ .Values.postgres.host | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: POSTGRES_HOST
         - name: POSTGRES_PORT
-          value: {{ .Values.postgres.port | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: POSTGRES_PORT
         - name: POSTGRES_DB
-          value: {{ .Values.postgres.db | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: POSTGRES_DB
         - name: POSTGRES_USER
-          value: {{ .Values.postgres.user | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: POSTGRES_USER
         - name: POSTGRES_PASSWORD
-          value: {{ .Values.postgres.password | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: POSTGRES_PASSWORD
         - name: POSTGRES_USERNAME
-          value: {{ .Values.postgres.usename | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: POSTGRES_USERNAME
         - name: LOG_LEVEL
           value: {{ .Values.logLevel | quote }}
         volumeMounts:
