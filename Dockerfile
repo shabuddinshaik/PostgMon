@@ -21,7 +21,7 @@ ENV PATH="/app/venv/bin:$PATH"
 COPY monitor.py /app/monitor.py
 COPY requirements.txt /app/requirements.txt
 
-RUN pip install --no-cache-dir --upgrade pip setuptools
+RUN pip install --no-cache-dir --upgrade pip==23.3 setuptools==70.0.0
 
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
