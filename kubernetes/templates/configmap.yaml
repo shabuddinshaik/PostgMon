@@ -7,4 +7,5 @@ data:
   POSTGRES_USER: {{ .Values.postgres.user | quote }}
   POSTGRES_HOST: {{ .Values.postgres.host | quote }}
   POSTGRES_PORT: {{ .Values.postgres.port | quote }}
+  POSTGRES_USERNAME: {{ .Values.postgres.usename | quote }}
   LOG_LEVEL: {{ .Values.logLevel | quote }}

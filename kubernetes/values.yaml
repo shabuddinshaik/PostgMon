@@ -10,6 +10,7 @@ postgres:
   db: "your_db"
   user: "your_user"
   password: "your_password"
+  usename: "usename"
 
 logLevel: "DEBUG"
 

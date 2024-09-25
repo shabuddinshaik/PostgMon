@@ -21,6 +21,7 @@ POSTGRES_DB = os.getenv("POSTGRES_DB", "your_db")
 POSTGRES_USER = os.getenv("POSTGRES_USER", "your_user")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "your_password")
 IDLE_THRESHOLD = os.getenv("IDLE_THRESHOLD", "1 hour")
+POSTGRES_USERNAME = os.getenv("POSTGRES_USERNAME", "your_username")
 
 def terminate_idle_connections():
     try:
@@ -43,7 +44,9 @@ def terminate_idle_connections():
         query = f"""
             SELECT pid, state, now() - query_start AS duration
             FROM pg_stat_activity
-            WHERE state = 'idle' AND (now() - query_start) > interval '{IDLE_THRESHOLD}';
+            WHERE state = 'idle' 
+              AND usename = '{POSTGRES_USERNAME}'
+              AND (now() - query_start) > interval '{IDLE_THRESHOLD}';
         """
         logging.debug(f"Executing query: {query}")
         cur.execute(query)
@@ -70,6 +73,6 @@ def terminate_idle_connections():
     except Exception as e:
         logging.error(f"Error: {e}")
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     logging.info("Running idle connection monitor...")
     terminate_idle_connections()
