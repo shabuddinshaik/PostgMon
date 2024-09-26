@@ -1,34 +1,50 @@
-FROM python:3.11-slim-buster
-
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
+FROM python:3.9-alpine
 
 WORKDIR /app
 
+RUN apk update && apk add --no-cache \
+    python3-dev \
+    build-base \
+    libpq \
+    postgresql-dev \
+    gcc \
+    musl-dev \
+    linux-headers \
+    libffi-dev \
+    openssl-dev \
+    && rm -rf /var/cache/apk/*
 
-COPY app/ /app/
+RUN python3 -m venv /app/venv
 
+ENV PATH="/app/venv/bin:$PATH"
 
-RUN useradd -ms /bin/bash appuser
+COPY monitor.py /app/monitor.py
+COPY scheduler.py /app/scheduler.py
 
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip setuptools
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
-RUN mkdir -p /app/logs && chown appuser:appuser /app/logs
+RUN mkdir -p /app/logs
 
-USER appuser
+RUN ln -sf /dev/stdout /app/logs/monitor.log && \
+    ln -sf /dev/stdout /app/logs/scheduler.log
 
+ENV POSTGRES_URL=""
+ENV POSTGRES_HOST="localhost"
+ENV POSTGRES_PORT=""
+ENV POSTGRES_DB=""
+ENV POSTGRES_USER=""
+ENV POSTGRES_PASSWORD=""
+ENV LOG_LEVEL="DEBUG"
+ENV SCHEDULE_INTERVAL_MINUTES="10"
+ENV IDLE_THRESHOLD="1 hour"
 
-ENV POSTGRES_URL="postgres://user:password@localhost:5432/mydb" \
-    POSTGRES_HOST="localhost" \
-    POSTGRES_PORT="5432" \
-    POSTGRES_DB="your_db" \
-    POSTGRES_USER="your_user" \
-    POSTGRES_PASSWORD="your_password" \
-    POSTGRES_USERNAME="your_username" \
-    IDLE_THRESHOLD="1 hour" \
-    LOG_LEVEL="INFO" \
-    SCHEDULE_INTERVAL_MINUTES="10"
+RUN apk add --no-cache shadow && useradd -u 1000 myuser
+USER root
+RUN chown -R 1000:1000 /app
+RUN chmod +x /app/scheduler.py /app/monitor.py
 
+USER myuser
 
-ENTRYPOINT ["python", "/app/scheduler.py"]
+CMD ["python", "/app/scheduler.py"]

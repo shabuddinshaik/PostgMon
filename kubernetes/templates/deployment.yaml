@@ -56,6 +56,8 @@ spec:
               key: POSTGRES_USERNAME
         - name: LOG_LEVEL
           value: {{ .Values.logLevel | quote }}
+        - name: SCHEDULE_INTERVAL_MINUTES
+          value: {{ .Values.postgres.scheduleIntervalMinutes | quote }}
         volumeMounts:
         - name: logs
           mountPath: /app/logs

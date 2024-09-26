@@ -11,6 +11,7 @@ postgres:
   user: "your_user"
   password: "your_password"
   usename: "usename"
+  scheduleIntervalMinutes: "10"
 
 logLevel: "DEBUG"
 
