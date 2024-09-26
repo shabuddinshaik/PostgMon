@@ -3,6 +3,7 @@ import psycopg2
 from psycopg2 import sql
 import logging
 
+
 LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG").upper()
 log_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 
@@ -13,6 +14,7 @@ file_handler = logging.FileHandler("/app/logs/monitor.log")
 file_handler.setFormatter(log_formatter)
 
 logging.basicConfig(level=LOG_LEVEL, handlers=[stream_handler, file_handler])
+
 
 POSTGRES_URL = os.getenv("POSTGRES_URL")
 POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")
@@ -25,6 +27,8 @@ POSTGRES_USERNAME = os.getenv("POSTGRES_USERNAME", "your_username")
 
 def terminate_idle_connections():
     try:
+        logging.info("Welcome to PostGMon! Starting idle connection monitor...")
+        
         if POSTGRES_URL:
             logging.info("Using POSTGRES_URL for connection")
             conn = psycopg2.connect(POSTGRES_URL)
@@ -38,6 +42,7 @@ def terminate_idle_connections():
                 port=POSTGRES_PORT
             )
         
+        logging.info("Successfully connected to the database.")
         conn.autocommit = True
         cur = conn.cursor()
 
@@ -46,7 +51,7 @@ def terminate_idle_connections():
             FROM pg_stat_activity
             WHERE state = 'idle' 
               AND usename = '{POSTGRES_USERNAME}'
-              AND (now() - query_start) > interval '{IDLE_THRESHOLD}';
+              AND state_change < NOW() - interval '{IDLE_THRESHOLD}';
         """
         logging.debug(f"Executing query: {query}")
         cur.execute(query)
