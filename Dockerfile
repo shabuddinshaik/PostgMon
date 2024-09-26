@@ -1,54 +1,34 @@
-FROM python:3.9-alpine
+FROM python:3.11-slim-buster
+
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
 
 WORKDIR /app
 
-RUN apk update && apk add --no-cache \
-    python3-dev \
-    build-base \
-    libpq \
-    postgresql-dev \
-    gcc \
-    musl-dev \
-    linux-headers \
-    libffi-dev \
-    openssl-dev \
-    && rm -rf /var/cache/apk/*
 
-RUN python3 -m venv /app/venv
-
-ENV PATH="/app/venv/bin:$PATH"
-
-COPY monitor.py /app/monitor.py
-COPY requirements.txt /app/requirements.txt
-
-RUN pip install --no-cache-dir --upgrade pip setuptools
-
-RUN pip install --no-cache-dir -r /app/requirements.txt
-
-RUN mkdir -p /app/logs
-
-COPY crontab /etc/cron.d/monitor-cron
-RUN chmod 0644 /etc/cron.d/monitor-cron && \
-    crontab /etc/cron.d/monitor-cron
-
-RUN touch /var/log/cron.log && \
-    ln -sf /dev/stdout /app/logs/monitor.log && \
-    ln -sf /dev/stdout /app/logs/cron.log
+COPY app/ /app/
 
 
-ENV POSTGRES_URL=""
-ENV POSTGRES_HOST="localhost"
-ENV POSTGRES_PORT=""
-ENV POSTGRES_DB=""
-ENV POSTGRES_USER=""
-ENV POSTGRES_PASSWORD=""
-ENV LOG_LEVEL="DEBUG"
-ENV POSTGRES_USERNAME=""
-
-RUN apk add --no-cache shadow && useradd -u 1000 myuser
-USER root
-RUN chown -R 1000:1000 /app /etc/cron.d/monitor-cron
-RUN chmod +x /app/monitor.py
+RUN useradd -ms /bin/bash appuser
 
 
-CMD ["crond", "-f"]
+RUN mkdir -p /app/logs && chown appuser:appuser /app/logs
+
+USER appuser
+
+
+ENV POSTGRES_URL="postgres://user:password@localhost:5432/mydb" \
+    POSTGRES_HOST="localhost" \
+    POSTGRES_PORT="5432" \
+    POSTGRES_DB="your_db" \
+    POSTGRES_USER="your_user" \
+    POSTGRES_PASSWORD="your_password" \
+    POSTGRES_USERNAME="your_username" \
+    IDLE_THRESHOLD="1 hour" \
+    LOG_LEVEL="INFO" \
+    SCHEDULE_INTERVAL_MINUTES="10"
+
+
+ENTRYPOINT ["python", "/app/scheduler.py"]
