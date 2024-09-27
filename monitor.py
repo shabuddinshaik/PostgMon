@@ -15,7 +15,6 @@ file_handler.setFormatter(log_formatter)
 
 logging.basicConfig(level=LOG_LEVEL, handlers=[stream_handler, file_handler])
 
-
 POSTGRES_URL = os.getenv("POSTGRES_URL")
 POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")
 POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
@@ -29,19 +28,23 @@ def log_message(message, level="INFO"):
     logging.log(getattr(logging, level), message)
 
 def connect_to_database():
-    if POSTGRES_URL:
-        log_message("Using POSTGRES_URL for connection")
-        conn = psycopg2.connect(POSTGRES_URL)
-    else:
-        log_message(f"Connecting using host: {POSTGRES_HOST}, port: {POSTGRES_PORT}")
-        conn = psycopg2.connect(
-            dbname=POSTGRES_DB,
-            user=POSTGRES_USER,
-            password=POSTGRES_PASSWORD,
-            host=POSTGRES_HOST,
-            port=POSTGRES_PORT
-        )
-    return conn
+    try:
+        if POSTGRES_URL:
+            log_message("Using POSTGRES_URL for connection")
+            conn = psycopg2.connect(POSTGRES_URL)
+        else:
+            log_message(f"Connecting using host: {POSTGRES_HOST}, port: {POSTGRES_PORT}")
+            conn = psycopg2.connect(
+                dbname=POSTGRES_DB,
+                user=POSTGRES_USER,
+                password=POSTGRES_PASSWORD,
+                host=POSTGRES_HOST,
+                port=POSTGRES_PORT
+            )
+        return conn
+    except Exception as e:
+        log_message(f"Database connection error: {e}", level="ERROR")
+        raise
 
 def terminate_idle_connections():
     try:
@@ -52,15 +55,15 @@ def terminate_idle_connections():
         conn.autocommit = True
         cur = conn.cursor()
 
-        query = f"""
+        query = """
             SELECT pid, state, now() - query_start AS duration
             FROM pg_stat_activity
             WHERE state = 'idle'
-              AND usename = '{POSTGRES_USERNAME}'
-              AND state_change < NOW() - interval '{IDLE_THRESHOLD}';
+              AND usename = %s
+              AND state_change < NOW() - interval %s;
         """
         log_message(f"Executing query: {query}")
-        cur.execute(query)
+        cur.execute(query, (POSTGRES_USERNAME, IDLE_THRESHOLD))
 
         idle_connections = cur.fetchall()
         num_idle_connections = len(idle_connections)
