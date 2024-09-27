@@ -3,15 +3,25 @@ import psycopg2
 from psycopg2 import sql
 import logging
 import time
+import json
+
+class JsonFormatter(logging.Formatter):
+    def format(self, record):
+        log_obj = {
+            'timestamp': self.formatTime(record, self.datefmt),
+            'level': record.levelname,
+            'message': record.getMessage(),
+        }
+        return json.dumps(log_obj)
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG").upper()
-log_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 
 stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(log_formatter)
+file_handler = logging.FileHandler("/app/logs/monitor.json")
 
-file_handler = logging.FileHandler("/app/logs/monitor.log")
-file_handler.setFormatter(log_formatter)
+json_formatter = JsonFormatter()
+stream_handler.setFormatter(json_formatter)
+file_handler.setFormatter(json_formatter)
 
 logging.basicConfig(level=LOG_LEVEL, handlers=[stream_handler, file_handler])
 
@@ -28,23 +38,19 @@ def log_message(message, level="INFO"):
     logging.log(getattr(logging, level), message)
 
 def connect_to_database():
-    try:
-        if POSTGRES_URL:
-            log_message("Using POSTGRES_URL for connection")
-            conn = psycopg2.connect(POSTGRES_URL)
-        else:
-            log_message(f"Connecting using host: {POSTGRES_HOST}, port: {POSTGRES_PORT}")
-            conn = psycopg2.connect(
-                dbname=POSTGRES_DB,
-                user=POSTGRES_USER,
-                password=POSTGRES_PASSWORD,
-                host=POSTGRES_HOST,
-                port=POSTGRES_PORT
-            )
-        return conn
-    except Exception as e:
-        log_message(f"Database connection error: {e}", level="ERROR")
-        raise
+    if POSTGRES_URL:
+        log_message("Using POSTGRES_URL for connection")
+        conn = psycopg2.connect(POSTGRES_URL)
+    else:
+        log_message(f"Connecting using host: {POSTGRES_HOST}, port: {POSTGRES_PORT}")
+        conn = psycopg2.connect(
+            dbname=POSTGRES_DB,
+            user=POSTGRES_USER,
+            password=POSTGRES_PASSWORD,
+            host=POSTGRES_HOST,
+            port=POSTGRES_PORT
+        )
+    return conn
 
 def terminate_idle_connections():
     try:
@@ -55,7 +61,7 @@ def terminate_idle_connections():
         conn.autocommit = True
         cur = conn.cursor()
 
-        query = """
+        query = f"""
             SELECT pid, state, now() - query_start AS duration
             FROM pg_stat_activity
             WHERE state = 'idle'
