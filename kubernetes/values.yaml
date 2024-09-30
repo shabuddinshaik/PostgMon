@@ -12,6 +12,9 @@ postgres:
   password: "your_password"
   usename: "usename"
   scheduleIntervalMinutes: "10"
+  idleThresholdSpike: "10 minutes"
+  spikeThreshold: "70"
+
 
 logLevel: "DEBUG"
 

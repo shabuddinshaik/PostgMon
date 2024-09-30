@@ -58,6 +58,10 @@ spec:
           value: {{ .Values.logLevel | quote }}
         - name: SCHEDULE_INTERVAL_MINUTES
           value: {{ .Values.postgres.scheduleIntervalMinutes | quote }}
+        - name: IDLE_THRESHOLD_SPIKE
+          value: {{ .Values.postgres.idleThresholdSpike | quote }}
+        - name: SPIKE_THRESHOLD
+          value: {{ .Values.postgres.spikeThreshold | quote }}
         volumeMounts:
         - name: logs
           mountPath: /app/logs

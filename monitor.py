@@ -31,8 +31,13 @@ POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
 POSTGRES_DB = os.getenv("POSTGRES_DB", "your_db")
 POSTGRES_USER = os.getenv("POSTGRES_USER", "your_user")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "your_password")
-IDLE_THRESHOLD = os.getenv("IDLE_THRESHOLD", "1 hour")
 POSTGRES_USERNAME = os.getenv("POSTGRES_USERNAME", "your_username")
+
+IDLE_THRESHOLD_NORMAL = os.getenv("IDLE_THRESHOLD_NORMAL", "1 hour")
+
+IDLE_THRESHOLD_SPIKE = os.getenv("IDLE_THRESHOLD_SPIKE", "10 minutes")
+
+SPIKE_THRESHOLD = int(os.getenv("SPIKE_THRESHOLD", 70))
 
 def log_message(message, level="INFO"):
     logging.log(getattr(logging, level), message)
@@ -68,10 +73,29 @@ def terminate_idle_connections():
               AND usename = %s
               AND state_change < NOW() - interval %s;
         """
-        log_message(f"Executing query: {query}")
-        cur.execute(query, (POSTGRES_USERNAME, IDLE_THRESHOLD))
 
-        idle_connections = cur.fetchall()
+        log_message(f"Executing query for normal idle threshold: {IDLE_THRESHOLD_NORMAL}")
+        cur.execute(query, (POSTGRES_USERNAME, IDLE_THRESHOLD_NORMAL))
+        idle_connections_normal = cur.fetchall()
+
+        log_message("Checking for total idle connections.")
+        cur.execute(f"""
+            SELECT COUNT(*) FROM pg_stat_activity
+            WHERE state = 'idle'
+              AND usename = %s;
+        """, (POSTGRES_USERNAME,))
+        total_idle_connections = cur.fetchone()[0]
+
+        log_message(f"Total idle connections found: {total_idle_connections}")
+
+        if total_idle_connections > SPIKE_THRESHOLD:
+            log_message(f"Spike detected! Idle connections exceed {SPIKE_THRESHOLD}. Applying spike threshold of {IDLE_THRESHOLD_SPIKE}.")
+            cur.execute(query, (POSTGRES_USERNAME, IDLE_THRESHOLD_SPIKE))
+            idle_connections_spike = cur.fetchall()
+        else:
+            idle_connections_spike = []
+
+        idle_connections = list(set(idle_connections_normal + idle_connections_spike))
         num_idle_connections = len(idle_connections)
 
         log_message(f"Checked for idle connections: {num_idle_connections} found.")
